@@ -1,6 +1,6 @@
 # om-service-sdk
 
-om-service 服务端 JavaScript SDK，提供账号服务相关 API 的封装。
+om-service 服务端 JavaScript SDK，提供账号服务、推送服务相关 API 的封装。
 
 ## 安装
 
@@ -14,7 +14,8 @@ npm install om-service-sdk
 om-service-sdk/
 ├── lib/
 │   ├── http-client.js   # HTTP 基础客户端（axios 封装 + 签名鉴权）
-│   └── account-api.js   # 账号服务 API
+│   ├── account-api.js   # 账号服务 API
+│   └── push-api.js      # 推送服务 API
 ├── index.js             # 统一导出入口
 └── package.json
 ```
@@ -22,13 +23,17 @@ om-service-sdk/
 ## 快速开始
 
 ```js
-import { AccountApi } from 'om-service-sdk';
+import { AccountApi, PushApi } from 'om-service-sdk';
 
-const api = new AccountApi('your-app-id', 'your-app-secret');
+const accountApi = new AccountApi('your-app-id', 'your-app-secret');
+const pushApi    = new PushApi('your-app-id', 'your-app-secret');
 
 // 账号密码登录
-const res = await api.loginPhonePassword({ phone: '138xxxxxxxx', password: '123456' });
+const res = await accountApi.loginPhonePassword({ phone: '138xxxxxxxx', password: '123456' });
 console.log(res.data);
+
+// 发送服务异常短信通知
+await pushApi.sendServiceFailSMS('138xxxxxxxx', 'order-service', 'svc-001', '连接超时');
 ```
 
 ## API 说明
@@ -102,6 +107,32 @@ console.log(res.data);
 | `getDailyNewUserStatistic(startDate, endDate)`    | 每日新增用户统计 |
 | `getWeeklyActiveUserStatistic(startDate, endDate)` | 每周活跃用户统计 |
 | `getMonthlyActiveUserStatistic(startDate, endDate)` | 每月活跃用户统计 |
+
+### PushApi
+
+推送服务 API，基础 URL：`https://service.itaotuo.com/push`
+
+#### 构造函数
+
+| 参数        | 类型     | 说明      |
+| ----------- | -------- | --------- |
+| `appId`     | `string` | 应用 ID   |
+| `appSecret` | `string` | 应用密钥  |
+
+#### 短信通知
+
+| 方法                                                                         | 说明                   |
+| ---------------------------------------------------------------------------- | ---------------------- |
+| `sendServiceFailSMS(PhoneNumbers, service_name, service_id, error_message)`  | 发送服务异常短信通知   |
+
+**参数说明**
+
+| 参数            | 类型                 | 说明                     |
+| --------------- | -------------------- | ------------------------ |
+| `PhoneNumbers`  | `string \| string[]` | 接收短信的手机号（单个或多个） |
+| `service_name`  | `string`             | 服务名称                 |
+| `service_id`    | `string`             | 服务 ID                  |
+| `error_message` | `string`             | 错误信息                 |
 
 ## License
 
